@@ -1,0 +1,23 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  api:
+    env_file:
+      - ./.env
+    build: .
+    ports:
+      - "10000:10000"
+    volumes:
+      - .:/code
+    networks:
+      - go-book-network
+  db: 
+    image: mysql:8.0
+    env_file: 
+      - ./.env
+    ports: 
+      - "3306:3306"
+    networks: 
+      - go-book-network
+networks:
+  go-book-network: 
+    name: go-book-network

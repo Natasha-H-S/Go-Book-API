@@ -14,3 +14,10 @@ go run .
 
 Navigate to `http://localhost:10000/`
 
+
+USER
+PASS
+MYSQL_DATABASE
+MYSQL_USER
+MYSQL_PASSWORD
+MYSQL_ROOT_PASSWORD

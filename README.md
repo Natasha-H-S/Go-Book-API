@@ -18,6 +18,8 @@ MYSQL_HOST=
 ```bash
 go build . 
 
+go mod vendor
+
 go run . 
 ```
 ### Using Docker

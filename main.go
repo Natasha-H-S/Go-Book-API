@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Natasha-H-S/Go-Book-API/pkg/config"
 	"upper.io/db.v3"
 	"upper.io/db.v3/mysql"
 )
@@ -14,20 +15,12 @@ type ConnectionURL struct {
 	Password string
 	Host     string
 	Database string
-	Options  map[string]string
-}
-
-var settings = mysql.ConnectionURL{
-	Database: `Go_Book_API`, // Database name
-	Host:     `localhost`,   // Server IP or name
-	User:     `root`,        // Username // Will be environment variable
-	Password: `Password`,    // Password  //Will be environment variable
 }
 
 type BookJson struct {
-	ID          int    `db:"BookID"`
+	ID          int    `db:"ID"`
 	Title       string `db:"Title"`
-	Description string `db:"Desciption"`
+	Description string `db:"Description"`
 	Genre       string `db:"Genre"`
 }
 
@@ -40,26 +33,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit")
 }
 
-// func booksHandler(w http.ResponseWriter, r *http.Request) {
-// 	jsonFile, err := os.Open("BookData.json")
+func getBooks(w http.ResponseWriter, r *http.Request, cfg *config.Config) {
+	settings := mysql.ConnectionURL{
+		User:     cfg.User,
+		Password: cfg.Password,
+		Host:     cfg.Host,
+		Database: cfg.Database,
+	}
 
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	fmt.Println("Successfully opened json")
-// 	defer jsonFile.Close()
-
-// 	byteValue, _ := ioutil.ReadAll(jsonFile)
-
-// 	var books Books
-
-// 	json.Unmarshal(byteValue, &books)
-
-// 	json.NewEncoder(w).Encode(books)
-// }
-
-func DatabaseSetUp(w http.ResponseWriter, r *http.Request) {
 	sess, err := mysql.Open(settings)
 	if err != nil {
 		log.Fatalf("db.Open(): %q\n", err)
@@ -87,13 +68,17 @@ func DatabaseSetUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handleRequests() {
-	http.HandleFunc("/books", DatabaseSetUp)
+func handleRequests(cfg *config.Config) {
+	http.HandleFunc("/books", func(w http.ResponseWriter, r *http.Request) {
+		getBooks(w, r, cfg)
+	})
 	http.HandleFunc("/", home)
 	log.Fatal(http.ListenAndServe(":10000", nil))
 }
 
 func main() {
-	handleRequests()
+	cfg := config.NewConfig()
+
+	handleRequests(cfg)
 
 }

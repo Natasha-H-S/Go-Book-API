@@ -1,0 +1,38 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  api:
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+    build: .
+    ports:
+      - "10000:10000"
+    volumes:
+      - .:/code
+    networks:
+      - go-book-network
+  db: 
+    image: mysql:8.0
+    container_name: go-book-api-db
+    hostname: go-book-api-db
+    env_file: 
+      - ./.env
+    volumes:
+      - .:/sql
+      -  ./sql/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    ports: 
+      - "3306:3306"
+    networks: 
+      - go-book-network
+    command: mysqld --user=root
+    healthcheck:
+      test: ["CMD", "service", "mysql", "status"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    expose:
+     - 3306
+networks:
+  go-book-network: 
+    name: go-book-network
